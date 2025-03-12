@@ -82,7 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
               });
 
               if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorMessage = await response.text();
+                    const errorJson = JSON.parse(errorMessage);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorJson.error}`);
               }
 
               const data = await response.json();

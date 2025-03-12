@@ -1,6 +1,6 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const faunadb = require("fauna");
+import { Client, fql, FaunaError } from "fauna";
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -25,15 +25,16 @@ exports.handler = async (event) => {
         if (!API_KEY) {
             return {statusCode: 500, body: JSON.stringify({error: "API Key not set."})};
         }
-
-        const q = faunadb.query;
-        const client = new faunadb.Client({ secret: FAUNA_SECRET });
         
         // Verify authCode and credits
+        const client = new Client({ secret: FAUNA_SECRET });
+        const q = query;
+
         const user = await client.query(
-            q.Get(q.Match(q.Index("users_by_authCode"), authCode))
+            fql`Get(Match(Index("users_by_authCode"), ${authCode}))`
         );
 
+        
         if (!user) {
             return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
         }
@@ -44,9 +45,7 @@ exports.handler = async (event) => {
 
         // Deduct credit
         await client.query(
-            q.Update(user.ref, {
-                data: { credits: user.data.credits - 1 },
-            })
+            fql`Update(${user.ref}, { data: { credits: ${user.data.credits - 1} } })`
         );
 
         // Generate content with LLM
