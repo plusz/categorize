@@ -1,9 +1,9 @@
 // script.js
 document.addEventListener('DOMContentLoaded', () => {
-  const dropArea = document.getElementById('drop-area');
-  const fileInput = document.getElementById('file-input');
+  const dropArea = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
   const categoriesInput = document.getElementById('categories');
-  const submitButton = document.getElementById('submit-button');
+  const submitButton = document.getElementById('submitButton');
   const resultDiv = document.getElementById('result');
   let file;
 
