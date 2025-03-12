@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/plusz/categorize#readme",
   "dependencies": {
-    "@google/generative-ai": "^0.24.0"
+    "@google/generative-ai": "^0.24.0",
+    "faunadb": "^4.8.2"
   }
 }
