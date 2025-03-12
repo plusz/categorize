@@ -1,0 +1,23 @@
+{
+  "name": "categorize",
+  "version": "1.0.0",
+  "description": "documents categorisation with LLM",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plusz/categorize.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/plusz/categorize/issues"
+  },
+  "homepage": "https://github.com/plusz/categorize#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0"
+  }
+}
