@@ -1,0 +1,76 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Categorizer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+  <style>
+    #dropZone {
+      border: 2px dashed #00d1b2;
+      padding: 20px;
+      text-align: center;
+      color: #00d1b2;
+      margin-bottom: 20px;
+    }
+    #dropZone.dragover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">Document Categorizer</h1>
+      <form id="uploadForm" class="box">
+        <div id="dropZone" class="file is-boxed">
+          <label class="file-label">
+            <input class="file-input" type="file" id="fileInput" accept=".pdf">
+            <span class="file-cta">
+              <span class="file-icon">
+                <i class="fas fa-upload"></i>
+              </span>
+              <span class="file-label">
+                Drag & Drop your document here or click to upload
+              </span>
+            </span>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">Categories</label>
+          <div class="control">
+            <textarea class="textarea" id="categories" rows="5" placeholder="Enter categories, one per line"></textarea>
+          </div>
+        </div>
+        <div class="control">
+          <button id="submit-button" type="submit" class="button is-primary">Upload and Categorize</button>
+        </div>
+      </form>
+    <div id="result"></div>
+    </div>
+  </section>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      fileInput.files = e.dataTransfer.files;
+    });
+  </script>
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
