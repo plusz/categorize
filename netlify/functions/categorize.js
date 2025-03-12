@@ -1,6 +1,6 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-import { Client, fql, FaunaError } from "fauna";
+const { Client, fql, FaunaError } = require("fauna");
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
