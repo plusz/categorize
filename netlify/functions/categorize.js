@@ -1,6 +1,6 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const faunadb = require("faunadb");
+const faunadb = require("fauna");
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -49,6 +49,7 @@ exports.handler = async (event) => {
             })
         );
 
+        // Generate content with LLM
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
