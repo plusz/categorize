@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropArea = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
   const categoriesInput = document.getElementById('categories');
+  const authCode = document.getElementById('authCode');
   const submitButton = document.getElementById('submitButton');
   const resultDiv = document.getElementById('result');
   let file;
@@ -51,6 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Please select a file.');
           return;
       }
+      if (!authCode) {
+        alert('Auth code is required. Please contact us for more credits.');
+        return;
+    }      
 
       const categories = categoriesInput.value.split('\n').map(category => category.trim().replace(/[^a-zA-Z0-9\s]/g, ''));
 
@@ -72,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   body: JSON.stringify({
                       pdf: base64Pdf,
                       categories: categories,
+                      authCode: authCode,
                   }),
               });
 
