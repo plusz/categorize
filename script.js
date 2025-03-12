@@ -25,10 +25,24 @@ document.addEventListener('DOMContentLoaded', () => {
       dropArea.classList.remove('drag-over');
   });
 
+    dropArea.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropArea.classList.remove('drag-over');
+        file = event.dataTransfer.files[0];
+        handleFile(file);
+    });
+
+    fileInput.addEventListener('change', (event) => {
+      file = event.target.files[0];
+      console.log("File selected via input:", file); // Add this line
+      handleFile(file);
+  });
+
   dropArea.addEventListener('drop', (event) => {
       event.preventDefault();
       dropArea.classList.remove('drag-over');
       file = event.dataTransfer.files[0];
+      console.log("File selected via drag and drop:", file); // Add this line
       handleFile(file);
   });
 
@@ -75,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       reader.readAsDataURL(file);
   });
+
+  
 
   function handleFile(file) {
       if (!file) return;
