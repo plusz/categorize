@@ -1,5 +1,6 @@
 # Local Netlify folder
 .netlify
+.vscode
 .env
 # Dependency directories
 node_modules
