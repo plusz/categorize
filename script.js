@@ -56,8 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }      
 
       const categories = categoriesInput.value.split('\n').map(category => category.trim().replace(/[^a-zA-Z0-9\s]/g, ''));
+      
+      const filteredCategories = categories.filter(category => category !== '');
+      if (filteredCategories.length > 10) {
+          alert("You can only have up to 10 non-empty categories.");
+          return;
+      }
 
-      if (categories.some(category => category === '')) {
+      if (filteredCategories.length === 0) {
           alert("Categories must contain only letters and numbers, and not be empty.");
           return;
       }
