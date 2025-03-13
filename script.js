@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropArea = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
   const categoriesInput = document.getElementById('categories');
-  const authCode = document.getElementById('authCode');
+  const authCodeInput = document.getElementById('authCode');
   const submitButton = document.getElementById('submitButton');
   const resultDiv = document.getElementById('result');
   let file;
@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fileInput.addEventListener('change', (event) => {
       file = event.target.files[0];
-      console.log("File selected via input:", file); // Add this line
       handleFile(file);
   });
 
@@ -43,16 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
       event.preventDefault();
       dropArea.classList.remove('drag-over');
       file = event.dataTransfer.files[0];
-      console.log("File selected via drag and drop:", file); // Add this line
       handleFile(file);
   });
 
-  submitButton.addEventListener('click', () => {
+  submitButton.addEventListener('click', () => {      
       if (!file) {
           alert('Please select a file.');
           return;
       }
-      if (!authCode) {
+      if (!authCodeInput.value) {
         alert('Auth code is required. Please contact us for more credits.');
         return;
     }      
@@ -67,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
 
       reader.onload = async (event) => {
+
+          submitButton.classList.add('is-loading');
+          submitButton.disabled = true;
+      
           const base64Pdf = event.target.result.split(',')[1];
           try {
               const response = await fetch('/.netlify/functions/categorize', {
@@ -77,22 +79,29 @@ document.addEventListener('DOMContentLoaded', () => {
                   body: JSON.stringify({
                       pdf: base64Pdf,
                       categories: categories,
-                      authCode: authCode,
+                      authCode: authCodeInput.value,
                   }),
               });
 
               if (!response.ok) {
                     const errorMessage = await response.text();
                     const errorJson = JSON.parse(errorMessage);
+                    submitButton.classList.remove('is-loading');
+                    submitButton.disabled = false;
+      
                     throw new Error(`HTTP error! status: ${response.status}, message: ${errorJson.error}`);
               }
 
               const data = await response.json();
-              resultDiv.textContent = `Category: ${data.category}`;
+                resultDiv.innerHTML = `Category: ${data.category}`;
           } catch (error) {
               console.error('Error:', error);
               resultDiv.textContent = `Error: ${error.message}`;
           }
+           finally {
+              submitButton.classList.remove('is-loading');
+              submitButton.disabled = false;
+           }
       };
 
       reader.readAsDataURL(file);

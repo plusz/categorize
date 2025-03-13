@@ -17,7 +17,7 @@ exports.handler = async (event) => {
         const categories = body.categories;
         const authCode = body.authCode;
 
-
+        console.log("Authcode:", authCode);
 
         if (!pdfBase64 || !categories || !Array.isArray(categories) || categories.length === 0) {
             return { statusCode: 400, body: JSON.stringify({ error: "Invalid input." }) };
@@ -25,27 +25,39 @@ exports.handler = async (event) => {
         if (!API_KEY) {
             return {statusCode: 500, body: JSON.stringify({error: "API Key not set."})};
         }
+        if (!authCode) {
+            return {statusCode: 500, body: JSON.stringify({error: "Auth code not set."})};
+        }
         
         // Verify authCode and credits
         const client = new Client({ secret: FAUNA_SECRET });
-        const q = query;
 
         const user = await client.query(
-            fql`Get(Match(Index("users_by_authCode"), ${authCode}))`
-        );
-
+            fql`
+              categories_credits.users_by_authCode(${authCode}).first()
+            `
+          );    
         
-        if (!user) {
-            return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
+
+        if (!user.data) {
+            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${authCode.toString()}` }) };
         }
+
+        console.log("User:", user);
 
         if (user.data.credits <= 0) {
             return { statusCode: 402, body: JSON.stringify({ error: "Insufficient credits" }) };
         }
 
-        // Deduct credit
+
+        console.log(`User ${user.data.key} credits:`, user.data.credits);
+
+        const creditsLeft = user.data.credits - 1;
+
         await client.query(
-            fql`Update(${user.ref}, { data: { credits: ${user.data.credits - 1} } })`
+            fql`
+                categories_credits.firstWhere(.key == ${authCode})?.update({credits: ${creditsLeft}})
+            `
         );
 
         // Generate content with LLM
@@ -68,7 +80,7 @@ exports.handler = async (event) => {
 
         const result = await model.generateContent({ contents: [{ parts }] });
         const response = await result.response;
-        const text = response.text();
+        let text = response.text() + `<br>Credits left: ${creditsLeft}`;
 
         return {
             statusCode: 200,
