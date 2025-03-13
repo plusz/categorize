@@ -1,4 +1,33 @@
 // script.js
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  fileInput.files = e.dataTransfer.files;
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const navbarBurger = document.querySelector('.navbar-burger');
+  const navbarMenu = document.getElementById('navbarMenu');
+
+  navbarBurger.addEventListener('click', () => {
+    navbarBurger.classList.toggle('is-active');
+    navbarMenu.classList.toggle('is-active');
+  });
+});
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const dropArea = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
@@ -56,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }      
 
       const categories = categoriesInput.value.split('\n').map(category => category.trim().replace(/[^a-zA-Z0-9\s]/g, ''));
-      
+
       const filteredCategories = categories.filter(category => category !== '');
       if (filteredCategories.length > 10) {
           alert("You can only have up to 10 non-empty categories.");
@@ -132,3 +161,4 @@ document.addEventListener('DOMContentLoaded', () => {
       dropArea.textContent = `File: ${file.name}`;
   }
 });
+

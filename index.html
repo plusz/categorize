@@ -26,13 +26,24 @@
       background-color: #004080 !important;
     }
 
-
+    @media (max-width: 768px) {
+      .box {
+        max-width: 90%;
+      }
+    }
   </style>
 </head>
 <body>
   <header>
-    <nav class="navbar" role="navigation" aria-label="main navigation" style="max-width: 70%; margin: 0 auto; display: flex;">
-      <div class="navbar-menu" style="justify-content: flex-end;">
+    <nav class="navbar" role="navigation" aria-label="main navigation" style="max-width: 70%; margin: 0 auto;">
+      <div class="navbar-brand">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="navbarMenu" class="navbar-menu" style="justify-content: flex-end;">
         <a class="navbar-item " href="index.html">Home</a>
         <a class="navbar-item " href="about.html">About</a>
       </div>
@@ -68,8 +79,8 @@
           <div class="field">
             <label class="label">
               Authorization Code
-                <span class="icon" title="To receive Auth code, please contact authors. Details on 'About' page" style="cursor: pointer;"></span>
-                  <i class="fas fa-question-circle"></i>
+                <span class="icon"></span>
+                  <i class="fas fa-question-circle" style="cursor: pointer;" title="To receive Auth code, please contact authors. Details on 'About' page"></i>
               </span>
           </label>
             <div class="control">
@@ -81,26 +92,7 @@
     <div id="result"></div>
     </div>
   </section>
-
-  <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      fileInput.files = e.dataTransfer.files;
-    });
-  </script>
   <script src="script.js"></script>
+  <script src="navigation.js"></script>
 </body>
 </html>
