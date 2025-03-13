@@ -62,18 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         handleFile(file);
     });
 
-    fileInput.addEventListener('change', (event) => {
-      file = event.target.files[0];
-      handleFile(file);
-  });
-
-  dropArea.addEventListener('drop', (event) => {
-      event.preventDefault();
-      dropArea.classList.remove('drag-over');
-      file = event.dataTransfer.files[0];
-      handleFile(file);
-  });
-
   submitButton.addEventListener('click', () => {      
       if (!file) {
           alert('Please select a file.');
