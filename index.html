@@ -36,16 +36,23 @@
       background-color: #004080 !important;
     }
 
+    .navbar {
+      max-width: 70%; margin: 0 auto;
+    }
+
     @media (max-width: 768px) {
       .box {
-        max-width: 100%;
+        max-width: 90% !important;
+      }
+      .navbar {
+      max-width: 90%; margin: 0 auto;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <nav class="navbar" role="navigation" aria-label="main navigation" style="max-width: 70%; margin: 0 auto;">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
           <span aria-hidden="true"></span>
