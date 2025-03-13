@@ -1,33 +1,4 @@
 // script.js
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-dropZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
-});
-
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('dragover');
-});
-
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  fileInput.files = e.dataTransfer.files;
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  const navbarBurger = document.querySelector('.navbar-burger');
-  const navbarMenu = document.getElementById('navbarMenu');
-
-  navbarBurger.addEventListener('click', () => {
-    navbarBurger.classList.toggle('is-active');
-    navbarMenu.classList.toggle('is-active');
-  });
-});
-
-
 document.addEventListener('DOMContentLoaded', () => {
   const dropArea = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
@@ -36,10 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitButton = document.getElementById('submitButton');
   const resultDiv = document.getElementById('result');
   let file;
-
-  dropArea.addEventListener('click', () => {
-      fileInput.click();
-  });
 
   fileInput.addEventListener('change', (event) => {
       file = event.target.files[0];
