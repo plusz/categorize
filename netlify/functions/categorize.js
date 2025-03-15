@@ -51,14 +51,9 @@ exports.handler = async (event) => {
             return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${authCode.toString()}` }) };
         }
 
-        console.log("User:", user);
-
         if (user.data.credits <= 0) {
             return { statusCode: 402, body: JSON.stringify({ error: "Insufficient credits" }) };
         }
-
-
-        console.log(`User ${user.data.key} credits:`, user.data.credits);
 
         const creditsLeft = user.data.credits - 1;
 
@@ -72,7 +67,11 @@ exports.handler = async (event) => {
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-        const prompt = `Given the content of a PDF document, categorize it into one of the following categories: ${categories.join(', ')}. Please respond with only the category name.`;
+        const prompt = `Analyze the content of the provided PDF document and generate a JSON output containing the following:
+    1. The document title.
+    2. A one-sentence description or summary of the document.
+    3. Up to 3 categories from the provided list that the document matches: ${categories.join(', ')}.
+    4. Up to 3 taxonomies that the user may consider adding to their set.`;
 
         const parts = [
             {
@@ -88,11 +87,17 @@ exports.handler = async (event) => {
 
         const result = await model.generateContent({ contents: [{ parts }] });
         const response = await result.response;
-        let text = response.text() + `<br>Credits left: ${creditsLeft}`;
+        let rawResponse = response.text();
+
+        let cleanedResponse = rawResponse.match(/{.*}/s)?.[0] || '{}';
+
+
+        let jsonResponse = JSON.parse(cleanedResponse);
+        jsonResponse.credits_left = creditsLeft;
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ category: text.trim() }),
+            body: JSON.stringify({jsonResponse}),
         };
     } catch (error) {
         console.error("Error:", error);

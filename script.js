@@ -88,7 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const data = await response.json();
-        resultDiv.innerHTML = `Category: ${data.category}`;
+        const processedData = data.jsonResponse;
+        resultDiv.innerHTML = Object.keys(processedData)
+          .map((key) => {
+            const value = processedData[key];
+            return `<div><strong>${key}:</strong> ${JSON.stringify(value)}</div>`;
+          })
+          .join("");
       } catch (error) {
         console.error("Error:", error);
         resultDiv.textContent = `Error: ${error.message}`;
