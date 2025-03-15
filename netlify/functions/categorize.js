@@ -25,6 +25,14 @@ exports.handler = async (event) => {
         if (!API_KEY) {
             return {statusCode: 500, body: JSON.stringify({error: "API Key not set."})};
         }
+
+        // Check PDF size (Base64 size is approximately 4/3 of the original file size)
+        const pdfSizeInBytes = (pdfBase64.length * 3) / 4 - (pdfBase64.endsWith('==') ? 2 : pdfBase64.endsWith('=') ? 1 : 0);
+
+        if (pdfSizeInBytes > 512 * 1024) { // 512 kB
+            return { statusCode: 400, body: JSON.stringify({ error: "PDF size exceeds 512kB limit." }) };
+        }
+
         if (!authCode) {
             return {statusCode: 500, body: JSON.stringify({error: "Auth code not set."})};
         }
