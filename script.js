@@ -109,9 +109,9 @@ document.addEventListener("DOMContentLoaded", () => {
       file = null;
       return;
     }
-    if (file.size > 1024 * 1024) {
-      // 1MB
-      alert("File size must be less than 1MB.");
+    if (file.size > 512 * 1024) {
+      // 512kB
+      alert("File size must be less than 512kB.");
       fileInput.value = "";
       file = null;
       return;
