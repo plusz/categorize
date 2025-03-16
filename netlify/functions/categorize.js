@@ -15,9 +15,10 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const pdfBase64 = body.pdf;
         const categories = body.categories;
-        const authCode = body.authCode;
+        let authCode = body.authCode;
+        // sanitize authCode
+        authCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
 
-        console.log("Authcode:", authCode);
 
         if (!pdfBase64 || !categories || !Array.isArray(categories) || categories.length === 0) {
             return { statusCode: 400, body: JSON.stringify({ error: "Invalid input." }) };
@@ -39,16 +40,17 @@ exports.handler = async (event) => {
         
         // Verify authCode and credits
         const client = new Client({ secret: FAUNA_SECRET });
+        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
 
         const user = await client.query(
             fql`
-              categories_credits.users_by_authCode(${authCode}).first()
+              categories_credits.users_by_authCode(${sanitizedAuthCode}).first()
             `
           );    
         
 
         if (!user.data) {
-            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${authCode.toString()}` }) };
+            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
         }
 
         if (user.data.credits <= 0) {
@@ -59,7 +61,7 @@ exports.handler = async (event) => {
 
         await client.query(
             fql`
-                categories_credits.firstWhere(.key == ${authCode})?.update({credits: ${creditsLeft}})
+                categories_credits.firstWhere(.key == ${sanitizedAuthCode})?.update({credits: ${creditsLeft}})
             `
         );
 
