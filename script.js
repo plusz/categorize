@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.onload = async (event) => {
       submitButton.classList.add("is-loading");
       submitButton.disabled = true;
+      resultDiv.innerHTML = "";
 
       const base64Pdf = event.target.result.split(",")[1];
       try {

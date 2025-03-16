@@ -63,6 +63,8 @@ exports.handler = async (event) => {
             `
         );
 
+
+
         // Generate content with LLM
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -94,6 +96,12 @@ exports.handler = async (event) => {
 
         let jsonResponse = JSON.parse(cleanedResponse);
         jsonResponse.credits_left = creditsLeft;
+
+        await client.query(
+            fql`
+                requests.create(${jsonResponse})
+            `
+        );
 
         return {
             statusCode: 200,
