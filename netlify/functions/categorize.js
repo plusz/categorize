@@ -50,7 +50,30 @@ exports.handler = async (event) => {
         
 
         if (!user.data) {
-            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
+            // Log failed attempt with authCode
+            await client.query(
+                fql`
+                    failedAttempts.create({
+                    authCode: ${authCode},
+                    timestamp: ${Date.now()}
+                    })
+                `
+                );
+    
+                // Check if there are too many failed attempts for this authCode
+                const failedAttempts = await client.query(
+                fql`
+                    failedAttempts
+                    .where(.authCode == ${authCode} && .timestamp > ${Date.now() - 15 * 60 * 1000}) // Last 15 minutes
+                    .count()
+                `
+                );
+    
+                if (failedAttempts >= 5) {
+                return { statusCode: 429, body: JSON.stringify({ error: "Too many failed attempts. Please try again later." }) };
+                }
+                
+                return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
         }
 
         if (user.data.credits <= 0) {
