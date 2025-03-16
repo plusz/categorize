@@ -50,29 +50,28 @@ exports.handler = async (event) => {
         
 
         if (!user.data) {
-            // Log failed attempt with authCode
-            await client.query(
+                // Log failed attempt with authCode
+                const userIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
+
+                await client.query(
                 fql`
                     failedAttempts.create({
                     authCode: ${authCode},
+                    ipAddress: ${userIp},
                     timestamp: ${Date.now()}
                     })
                 `
                 );
-    
-                // Check if there are too many failed attempts for this authCode
+
+                // Check if there are too many failed attempts for this IP address
                 const failedAttempts = await client.query(
                 fql`
                     failedAttempts
-                    .where(.authCode == ${authCode} && .timestamp > ${Date.now() - 15 * 60 * 1000}) // Last 15 minutes
+                    .where(.ipAddress == ${userIp} && .timestamp > ${Date.now() - 15 * 60 * 1000}) // Last 15 minutes
                     .count()
                 `
                 );
-    
-                if (failedAttempts >= 5) {
-                return { statusCode: 429, body: JSON.stringify({ error: "Too many failed attempts. Please try again later." }) };
-                }
-                
+
                 return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
         }
 
