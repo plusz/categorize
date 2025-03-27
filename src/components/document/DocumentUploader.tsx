@@ -18,7 +18,6 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSubmit }) => {
   const tooltipRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // Initialize tooltips
     if (tooltipRef.current) {
       tippy(tooltipRef.current, {
         allowHTML: true,
@@ -60,7 +59,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSubmit }) => {
       return;
     }
     
-    if (selectedFile.size > 512 * 1024) { // 512kB
+    if (selectedFile.size > 512 * 1024) {
       alert('File size must be less than 512kB.');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -104,7 +103,6 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSubmit }) => {
     try {
       setIsLoading(true);
       
-      // Convert file to base64
       const reader = new FileReader();
       reader.readAsDataURL(file);
       
@@ -125,53 +123,52 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSubmit }) => {
 
   return (
     <div className="container">
-      <h1 className="title">Document Categorizer</h1>
-      <p className="box">
-        This is a demo of an API powered by a Large Language Model (LLM) designed for intelligent document 
-        categorization and processing. The solution can seamlessly integrate into larger systems, 
-        automating workflows and enhancing document management processes.
-      </p>
-      
-      <div 
-        id="dropZone" 
-        className="file is-boxed"
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <label className="file-label">
-          <input 
-            className="file-input" 
-            type="file" 
-            accept=".pdf"
-            onChange={handleFileChange}
-            ref={fileInputRef}
-          />
-          <span className="file-cta">
-            <span className="file-icon">
-              <FontAwesomeIcon icon={faUpload} />
+      <h1 className="title is-2">Document Categorizer</h1>
+      <div className="box">
+        <p className="mb-4">
+          This is a demo of an API powered by a Large Language Model (LLM) designed for intelligent document 
+          categorization and processing. The solution can seamlessly integrate into larger systems, 
+          automating workflows and enhancing document management processes.
+        </p>
+        
+        <div 
+          className="file is-boxed is-centered mb-4"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <label className="file-label">
+            <input 
+              className="file-input" 
+              type="file" 
+              accept=".pdf"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+            />
+            <span className="file-cta">
+              <span className="file-icon">
+                <FontAwesomeIcon icon={faUpload} />
+              </span>
+              <span className="file-label">
+                {file ? `File: ${file.name}` : 'Drag & Drop your document here or click to upload'}
+              </span>
             </span>
-            <span className="file-label">
-              {file ? `File: ${file.name}` : 'Drag & Drop your document here or click to upload'}
-            </span>
-          </span>
-        </label>
-      </div>
-      
-      <div className="field">
-        <label className="label">Categories</label>
-        <div className="control">
-          <textarea 
-            className="textarea" 
-            rows={10} 
-            placeholder="Enter max 10 categories, one per line"
-            value={categories}
-            onChange={(e) => setCategories(e.target.value)}
-          />
+          </label>
         </div>
-      </div>
-      
-      <div className="control">
+        
+        <div className="field">
+          <label className="label">Categories</label>
+          <div className="control">
+            <textarea 
+              className="textarea" 
+              rows={6} 
+              placeholder="Enter max 10 categories, one per line"
+              value={categories}
+              onChange={(e) => setCategories(e.target.value)}
+            />
+          </div>
+        </div>
+        
         <div className="field">
           <label className="label">
             Authorization
@@ -183,39 +180,41 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSubmit }) => {
               <FontAwesomeIcon icon={faEye} />
             </span>
           </label>
-          <div className="control">
-            <div className="field has-addons">
-              <div className="control is-expanded">
-                <input 
-                  className="input" 
-                  type={isPasswordVisible ? 'text' : 'password'} 
-                  placeholder="Enter your authorization code"
-                  value={authCode}
-                  onChange={(e) => setAuthCode(e.target.value)}
-                />
-              </div>
-              <div className="control">
-                <button 
-                  className="button is-light" 
-                  onClick={togglePasswordVisibility}
-                >
-                  <span className="icon is-small">
-                    <FontAwesomeIcon icon={isPasswordVisible ? faEyeSlash : faEye} />
-                  </span>
-                </button>
-              </div>
+          <div className="field has-addons">
+            <div className="control is-expanded">
+              <input 
+                className="input" 
+                type={isPasswordVisible ? 'text' : 'password'} 
+                placeholder="Enter your authorization code"
+                value={authCode}
+                onChange={(e) => setAuthCode(e.target.value)}
+              />
+            </div>
+            <div className="control">
+              <button 
+                className="button is-light" 
+                onClick={togglePasswordVisibility}
+              >
+                <span className="icon">
+                  <FontAwesomeIcon icon={isPasswordVisible ? faEyeSlash : faEye} />
+                </span>
+              </button>
             </div>
           </div>
         </div>
+
+        <div className="field mt-5">
+          <div className="control">
+            <button 
+              className={`button is-primary is-fullwidth ${isLoading ? 'is-loading' : ''}`}
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
+              Categorize Document
+            </button>
+          </div>
+        </div>
       </div>
-      
-      <button 
-        className={`button is-primary upload-button mt-5 ${isLoading ? 'is-loading' : ''}`}
-        onClick={handleSubmit}
-        disabled={isLoading}
-      >
-        Upload and Categorize
-      </button>
     </div>
   );
 };

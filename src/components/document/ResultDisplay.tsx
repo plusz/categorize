@@ -6,14 +6,21 @@ interface ResultDisplayProps {
 
 const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
   if (!result) {
-    return <div className="box" id="result"></div>;
+    return null;
   }
 
   return (
-    <div className="box" id="result">
+    <div className="box result">
+      <h2 className="title is-4 mb-4">Results</h2>
       {Object.entries(result).map(([key, value]) => (
-        <div key={key}>
-          <strong>{key}:</strong> {typeof value === 'object' ? JSON.stringify(value) : value.toString()}
+        <div key={key} className="mb-3">
+          <strong className="has-text-primary">{key}:</strong>
+          <div className="mt-2">
+            {typeof value === 'object' 
+              ? <pre className="has-background-light p-3 is-family-monospace">{JSON.stringify(value, null, 2)}</pre>
+              : <span className="has-text-grey-dark">{value.toString()}</span>
+            }
+          </div>
         </div>
       ))}
     </div>
