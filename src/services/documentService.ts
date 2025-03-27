@@ -19,7 +19,7 @@ export const categorizePdf = async (
   authCode: string
 ): Promise<CategorizationResponse> => {
   try {
-    const response = await fetch('/.netlify/functions/categorize', {
+    const response = await fetch('/netlify/functions/categorize', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
