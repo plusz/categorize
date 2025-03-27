@@ -96,9 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return `<div><strong>${key}:</strong> ${JSON.stringify(value)}</div>`;
           })
           .join("");
+        resultDiv.classList.remove('is-hidden');
       } catch (error) {
         console.error("Error:", error);
-        resultDiv.textContent = `Error: ${error.message}`;
+        resultDiv.innerHTML = `<div class="notification is-danger">Error: ${error.message}</div>`;
+        resultDiv.classList.remove('is-hidden');
       } finally {
         submitButton.classList.remove("is-loading");
         submitButton.disabled = false;

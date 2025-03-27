@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4VMEHN8W95"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4VMEHN8W95');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examples - Document Categorization API Demo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <style>
+    .navbar {
+      max-width: 70%; 
+      margin: 0 auto;
+    }
+
+    .example-image {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .example-image:hover {
+      transform: scale(1.05);
+    }
+
+    .modal-content {
+      text-align: center;
+    }
+
+    .modal-content img {
+      max-height: 80vh;
+      width: auto;
+    }
+
+    @media (max-width: 768px) {
+      .box {
+        max-width: 90% !important;
+      }
+      .navbar {
+        max-width: 90%; 
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="navbarMenu" class="navbar-menu" style="justify-content: flex-end;">
+        <a class="navbar-item" href="index.html">Home</a>
+        <a class="navbar-item" href="examples.html">Examples</a>
+        <a class="navbar-item" href="about.html">About</a>
+      </div>
+    </nav>
+  </header>
+  <section class="section">
+    <div class="container">
+      <div class="box" style="max-width: 70%; margin: 0 auto;">
+        <main>
+          <h1 class="title">Examples</h1>
+          <p class="subtitle">Document Categorization API Demo</p>
+          
+          <!-- First Example -->
+          <div class="columns is-vcentered mb-6">
+            <div class="column is-4">
+              <figure class="image">
+                <img src="examples/example1.png" alt="Example 1" class="example-image" data-target="modal-example1">
+              </figure>
+            </div>
+            <div class="column">
+              <h3 class="title is-4">Invoice Categorization</h3>
+              <div class="content">
+                <p>This example demonstrates how our API categorizes an invoice document. The system identified key elements such as:</p>
+                <ul>
+                  <li>Invoice type and purpose</li>
+                  <li>Payment terms and conditions</li>
+                  <li>Document classification accuracy</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Second Example -->
+          <div class="columns is-vcentered">
+            <div class="column is-4">
+              <figure class="image">
+                <img src="examples/example2.png" alt="Example 2" class="example-image" data-target="modal-example2">
+              </figure>
+            </div>
+            <div class="column">
+              <h3 class="title is-4">Contract Analysis</h3>
+              <div class="content">
+                <p>In this example, our API analyzes a contract document, showcasing:</p>
+                <ul>
+                  <li>Contract type identification</li>
+                  <li>Key terms extraction</li>
+                  <li>Risk assessment highlights</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal for Example 1 -->
+  <div id="modal-example1" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <p class="image">
+        <img src="examples/example1.png" alt="Example 1 Full Size">
+      </p>
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+  </div>
+
+  <!-- Modal for Example 2 -->
+  <div id="modal-example2" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <p class="image">
+        <img src="examples/example2.png" alt="Example 2 Full Size">
+      </p>
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+  </div>
+
+  <script src="navigation.js"></script>
+  <script>
+    // Modal functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get all images with modal functionality
+      const modalImages = document.querySelectorAll('.example-image');
+      
+      modalImages.forEach(image => {
+        image.addEventListener('click', () => {
+          const targetModal = document.getElementById(image.dataset.target);
+          targetModal.classList.add('is-active');
+        });
+      });
+
+      // Close modal functionality
+      const modalCloseButtons = document.querySelectorAll('.modal-background, .modal-close');
+      modalCloseButtons.forEach(closeButton => {
+        closeButton.addEventListener('click', () => {
+          closeButton.closest('.modal').classList.remove('is-active');
+        });
+      });
+
+      // Close modal on escape key
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          const activeModal = document.querySelector('.modal.is-active');
+          if (activeModal) {
+            activeModal.classList.remove('is-active');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
