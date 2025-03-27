@@ -1,6 +1,6 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { Client, fql, FaunaError } = require("fauna");
+const { Client, fql } = require("fauna");
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -18,7 +18,6 @@ exports.handler = async (event) => {
         let authCode = body.authCode;
         // sanitize authCode
         authCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
-
 
         if (!pdfBase64 || !categories || !Array.isArray(categories) || categories.length === 0) {
             return { statusCode: 400, body: JSON.stringify({ error: "Invalid input." }) };
@@ -48,7 +47,6 @@ exports.handler = async (event) => {
             `
           );    
         
-
         if (!user.data) {
                 // Log failed attempt with authCode
                 const userIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
@@ -87,8 +85,6 @@ exports.handler = async (event) => {
             `
         );
 
-
-
         // Generate content with LLM
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -116,7 +112,6 @@ exports.handler = async (event) => {
         let rawResponse = response.text();
 
         let cleanedResponse = rawResponse.match(/{.*}/s)?.[0] || '{}';
-
 
         let jsonResponse = JSON.parse(cleanedResponse);
         jsonResponse.credits_left = creditsLeft;

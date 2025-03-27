@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Custom styles for the application */
+#dropZone {
+  border: 2px dashed #004080;
+  padding: 20px;
+  text-align: center;
+  color: #004080;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+#dropZone.dragover {
+  background-color: #f0f0f0;
+}
+
+.upload-button {
+  background-color: #004080 !important;
+}
+
+.file-label {
+  width: 100%;
+  cursor: pointer;
+}
+
+.navbar {
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .box {
+    max-width: 90% !important;
+  }
+  .navbar {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+}
