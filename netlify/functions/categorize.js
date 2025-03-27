@@ -1,6 +1,7 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { Client, fql } = require("fauna");
+const base64js = require('base64-js');
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -26,8 +27,9 @@ exports.handler = async (event) => {
             return {statusCode: 500, body: JSON.stringify({error: "API Key not set."})};
         }
 
-        // Check PDF size (Base64 size is approximately 4/3 of the original file size)
-        const pdfSizeInBytes = (pdfBase64.length * 3) / 4 - (pdfBase64.endsWith('==') ? 2 : pdfBase64.endsWith('=') ? 1 : 0);
+        // Check PDF size using base64js
+        const pdfBytes = base64js.toByteArray(pdfBase64);
+        const pdfSizeInBytes = pdfBytes.length;
 
         if (pdfSizeInBytes > 512 * 1024) { // 512 kB
             return { statusCode: 400, body: JSON.stringify({ error: "PDF size exceeds 512kB limit." }) };
