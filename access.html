@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4VMEHN8W95"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4VMEHN8W95');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Access - Document Categorizer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    .navbar {
+      max-width: 70%; 
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .box {
+        max-width: 90% !important;
+      }
+      .navbar {
+        max-width: 90%; 
+        margin: 0 auto;
+      }
+    }
+
+    .notification {
+      display: none;
+    }
+
+    .notification.is-visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="navbarMenu" class="navbar-menu" style="justify-content: flex-end;">
+        <a class="navbar-item" href="index.html">Home</a>
+        <a class="navbar-item" href="examples.html">Examples</a>
+        <a class="navbar-item" href="about.html">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="section">
+    <div class="container" style="max-width: 70%; margin: 0 auto;">
+      <h1 class="title">Request Access</h1>
+      <div class="box">
+        <div id="successNotification" class="notification is-success">
+          Thank you for your request. We'll get back to you shortly.
+        </div>
+        <div id="errorNotification" class="notification is-danger">
+          An error occurred. Please try again.
+        </div>
+
+        <form id="accessRequestForm">
+          <div class="field">
+            <label class="label">Email Address</label>
+            <div class="control">
+              <input class="input" type="email" id="email" name="email" required placeholder="Enter your email address">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Business Type</label>
+            <div class="control">
+              <div class="select">
+                <select id="businessType" name="businessType" required>
+                  <option value="">Select business type</option>
+                  <option value="enterprise">Enterprise</option>
+                  <option value="small_business">Small Business</option>
+                  <option value="startup">Startup</option>
+                  <option value="government">Government</option>
+                  <option value="education">Education</option>
+                  <option value="non_profit">Non-Profit</option>
+                  <option value="individual">Individual</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Intended Use</label>
+            <div class="control">
+              <div class="select">
+                <select id="intendedUse" name="intendedUse" required>
+                  <option value="">Select intended use</option>
+                  <option value="document_management">Document Management</option>
+                  <option value="workflow_automation">Workflow Automation</option>
+                  <option value="data_extraction">Data Extraction</option>
+                  <option value="compliance">Compliance & Regulatory</option>
+                  <option value="research">Research & Analysis</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div>
+            </div>
+          </div>
+
+          <div class="field mt-5">
+            <div class="control">
+              <button type="submit" class="button is-primary" id="submitButton">
+                Request Access
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="navigation.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('accessRequestForm');
+      const submitButton = document.getElementById('submitButton');
+      const successNotification = document.getElementById('successNotification');
+      const errorNotification = document.getElementById('errorNotification');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Hide any existing notifications
+        successNotification.classList.remove('is-visible');
+        errorNotification.classList.remove('is-visible');
+
+        // Disable submit button and show loading state
+        submitButton.classList.add('is-loading');
+        submitButton.disabled = true;
+
+        try {
+          const recaptchaResponse = grecaptcha.getResponse();
+          if (!recaptchaResponse) {
+            throw new Error('Please complete the reCAPTCHA');
+          }
+
+          const formData = {
+            email: form.email.value,
+            businessType: form.businessType.value,
+            intendedUse: form.intendedUse.value,
+            recaptchaToken: recaptchaResponse
+          };
+
+          const response = await fetch('/.netlify/functions/request-access', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to submit request');
+          }
+
+          // Show success message
+          successNotification.classList.add('is-visible');
+          form.reset();
+          grecaptcha.reset();
+
+        } catch (error) {
+          console.error('Error:', error);
+          errorNotification.textContent = error.message;
+          errorNotification.classList.add('is-visible');
+        } finally {
+          submitButton.classList.remove('is-loading');
+          submitButton.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

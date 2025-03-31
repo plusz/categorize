@@ -20,6 +20,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
     "fauna": "^2.5.0",
-    "faunadb": "^4.8.2"
+    "faunadb": "^4.8.2",
+    "nodemailer": "^6.9.12"
   }
 }

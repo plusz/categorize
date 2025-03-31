@@ -1,0 +1,76 @@
+#dropZone {
+  border: 2px dashed #004080;
+  padding: 20px;
+  text-align: center;
+  color: #004080;
+  border-radius: 10px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+#dropZone.dragover {
+  background-color: #f0f0f0;
+  margin-bottom: 1.5rem; /* Moved from media query */
+}
+
+.upload-button {
+  background-color: #004080 !important;
+}
+
+.file-label {
+  width: 100%;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar {
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.upload-area {
+  height: 100%;
+}
+
+.categories-area {
+  height: 100%;
+}
+
+.categories-area textarea {
+  height: 100% !important;
+  min-height: 200px;
+}
+
+.example-image {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.example-image:hover {
+  transform: scale(1.05);
+}
+
+.modal-content {
+  text-align: center;
+}
+
+.modal-content img {
+  max-height: 96vh;
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .box {
+    max-width: 90% !important;
+  }
+  .navbar {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+}
