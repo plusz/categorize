@@ -65,6 +65,17 @@
   width: auto;
 }
 
+.custom-footer {
+  background-color: white;
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.footer-link {
+  color: black;
+  text-decoration: none;
+}
+
 @media (max-width: 768px) {
   .box {
     max-width: 90% !important;
