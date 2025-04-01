@@ -75,6 +75,11 @@
   color: black;
   text-decoration: none;
 }
+/* Hide honeypot field */
+.hidden {
+  display: none !important;
+}
+
 
 @media (max-width: 768px) {
   .box {
