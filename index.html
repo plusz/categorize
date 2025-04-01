@@ -138,9 +138,14 @@
   <script src="https://unpkg.com/@popperjs/core@2"></script>
   <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
   <script>
-    tippy('.tooltip-target', {
-      allowHTML: true,
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof tippy !== 'undefined') {
+          tippy('.tooltip-target', {
+            allowHTML: true,
+          });
+        } else {
+          console.error('Tippy.js is not loaded.');
+        }});
   </script>
 </body>
 </html>
