@@ -24,7 +24,7 @@ exports.handler = async (event) => {
             return { statusCode: 400, body: JSON.stringify({ error: "Invalid input." }) };
         }
         if (!API_KEY) {
-            return {statusCode: 500, body: JSON.stringify({error: "API Key not set."})};
+            return { statusCode: 500, body: JSON.stringify({ error: "API Key not set." }) };
         }
 
         // Check PDF size (Base64 size is approximately 4/3 of the original file size)
@@ -35,9 +35,9 @@ exports.handler = async (event) => {
         }
 
         if (!authCode) {
-            return {statusCode: 500, body: JSON.stringify({error: "Auth code not set."})};
+            return { statusCode: 500, body: JSON.stringify({ error: "Auth code not set." }) };
         }
-        
+
         // Verify authCode and credits
         const client = new Client({ secret: FAUNA_SECRET });
         const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
@@ -46,14 +46,14 @@ exports.handler = async (event) => {
             fql`
               categories_credits.users_by_authCode(${sanitizedAuthCode}).first()
             `
-          );    
-        
+        );
+
 
         if (!user.data) {
-                // Log failed attempt with authCode
-                const userIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
+            // Log failed attempt with authCode
+            const userIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
 
-                await client.query(
+            await client.query(
                 fql`
                     failedAttempts.create({
                     authCode: ${authCode},
@@ -61,18 +61,18 @@ exports.handler = async (event) => {
                     timestamp: ${Date.now()}
                     })
                 `
-                );
+            );
 
-                // Check if there are too many failed attempts for this IP address
-                const failedAttempts = await client.query(
+            // Check if there are too many failed attempts for this IP address
+            const failedAttempts = await client.query(
                 fql`
                     failedAttempts
                     .where(.ipAddress == ${userIp} && .timestamp > ${Date.now() - 15 * 60 * 1000}) // Last 15 minutes
                     .count()
                 `
-                );
+            );
 
-                return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
+            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
         }
 
         if (user.data.credits <= 0) {
@@ -111,7 +111,14 @@ exports.handler = async (event) => {
             },
         ];
 
-        const result = await model.generateContent({ contents: [{ parts }] });
+        const result = await model.generateContent({
+            contents: [{ parts }],
+            generationConfig: {
+                maxOutputTokens: 2048, // Set your desired maximum output tokens here
+            },
+        });
+
+
         const response = await result.response;
         let rawResponse = response.text();
 
@@ -129,7 +136,7 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({jsonResponse}),
+            body: JSON.stringify({ jsonResponse }),
         };
     } catch (error) {
         console.error("Error:", error);
