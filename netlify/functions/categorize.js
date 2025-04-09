@@ -1,10 +1,11 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { Client, fql, FaunaError } = require("fauna");
+const { Client, fql } = require("fauna");
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
 const FAUNA_SECRET = process.env.FAUNA_SECRET;
+const LLM_PROMPT = process.env.LLM_PROMPT;
 
 exports.handler = async (event) => {
     if (event.httpMethod !== "POST") {
@@ -72,7 +73,7 @@ exports.handler = async (event) => {
                 `
             );
 
-            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized ${sanitizedAuthCode.toString()}` }) };
+            return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized. Please check your auth code.` }) };
         }
 
         if (user.data.credits <= 0) {
@@ -93,11 +94,7 @@ exports.handler = async (event) => {
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-        const prompt = `Analyze the content of the provided PDF document and generate a JSON output containing the following:
-    1. The document title.
-    2. A one-sentence description or summary of the document.
-    3. Up to 3 categories from the provided list that the document matches: ${categories.join(', ')}.
-    4. Up to 3 taxonomies that the user may consider adding to their set.`;
+        const prompt = `${LLM_PROMPT}`;
 
         const parts = [
             {
