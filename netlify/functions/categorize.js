@@ -1,79 +1,13 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { Client, fql } = require("fauna");
 const { createClient } = require("@supabase/supabase-js");
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
-const FAUNA_SECRET = process.env.FAUNA_SECRET;
 const LLM_PROMPT = process.env.LLM_PROMPT;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-// Database abstraction layer
-const dbServiceFaunaDB = {
-    // Get user data by auth code
-    async getUserData(authCode) {
-        const client = new Client({ secret: FAUNA_SECRET });
-        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
-        
-        const user = await client.query(
-            fql`
-              categories_credits.users_by_authCode(${sanitizedAuthCode}).first()
-            `
-        );
-        
-        return user.data;
-    },
-    
-    // Save failed authentication attempt
-    async saveFailedAttempt(authCode, ipAddress) {
-        const client = new Client({ secret: FAUNA_SECRET });
-        await client.query(
-            fql`
-                failedAttempts.create({
-                authCode: ${authCode},
-                ipAddress: ${ipAddress},
-                timestamp: ${Date.now()}
-                })
-            `
-        );
-    },
-    
-    // Read failed authentication attempts for an IP address
-    async readFailedAttempts(ipAddress, timeWindowMs) {
-        const client = new Client({ secret: FAUNA_SECRET });
-        const failedAttempts = await client.query(
-            fql`
-                failedAttempts
-                .where(.ipAddress == ${ipAddress} && .timestamp > ${Date.now() - timeWindowMs})
-                .count()
-            `
-        );
-        return failedAttempts;
-    },
-    
-    // Update client credits
-    async updateClientCredits(authCode, newCreditAmount) {
-        const client = new Client({ secret: FAUNA_SECRET });
-        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
-        await client.query(
-            fql`
-                categories_credits.firstWhere(.key == ${sanitizedAuthCode})?.update({credits: ${newCreditAmount}})
-            `
-        );
-    },
-    
-    // Create a document in the database
-    async createDocument(collectionName, documentData) {
-        const client = new Client({ secret: FAUNA_SECRET });
-        await client.query(
-            fql`
-                ${collectionName}.create(${documentData})
-            `
-        );
-    }
-};
 
 // Supabase database service
 const dbServiceNew = {
