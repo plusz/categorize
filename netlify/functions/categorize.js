@@ -143,14 +143,24 @@ const dbServiceNew = {
         const supabase = this.getClient();
         const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
         
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('credits')
             .update({ credits: newCreditAmount })
-            .eq('key', sanitizedAuthCode);  // TODO encrypt keys
-            
+            .eq('key', sanitizedAuthCode)  // TODO encrypt keys
+            .select();
+                        
         if (error) {
             console.error("Error updating client credits:", error);
+            return false;
         }
+        
+        // Check if any rows were updated
+        if (!data || data.length === 0) {
+            console.error("No rows were updated when updating client credits");
+            return false;
+        }
+        
+        return true;
     },
     
     // Create a document in the database
@@ -218,6 +228,8 @@ exports.handler = async (event) => {
         // Verify authCode and credits
         const user = await dbServiceNew.getUserData(authCode);
 
+        console.log(user);
+
         if (!user) {
             // Log failed attempt with authCode
             await dbServiceNew.saveFailedAttempt(authCode, userIp);
@@ -231,7 +243,9 @@ exports.handler = async (event) => {
 
         const creditsLeft = user.credits - 1;
 
-        await dbServiceNew.updateClientCredits(authCode, creditsLeft);
+        if (!(await dbServiceNew.updateClientCredits(authCode, creditsLeft))) {
+            return { statusCode: 500, body: JSON.stringify({ error: "Failed to update client credits" }) };
+        }
 
         // Generate content with LLM
         const genAI = new GoogleGenerativeAI(API_KEY);
