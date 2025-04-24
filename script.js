@@ -125,7 +125,12 @@ document.addEventListener("DOMContentLoaded", () => {
       file = null;
       return;
     }
-    dropArea.textContent = `File: ${file.name}`;
+    
+    // Update the file label instead of replacing the entire content
+    const fileLabel = dropArea.querySelector('.file-label span.file-label');
+    if (fileLabel) {
+      fileLabel.innerHTML = `File: ${file.name}<br>Click to change file`;
+    }
   }
 
   document
