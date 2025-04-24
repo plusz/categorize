@@ -1,11 +1,174 @@
 // netlify/functions/categorize.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { Client, fql } = require("fauna");
+const { createClient } = require("@supabase/supabase-js");
 
 const MODEL_NAME = "gemini-2.0-flash";
 const API_KEY = process.env.GOOGLE_API_KEY;
 const FAUNA_SECRET = process.env.FAUNA_SECRET;
 const LLM_PROMPT = process.env.LLM_PROMPT;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+
+// Database abstraction layer
+const dbServiceFaunaDB = {
+    // Get user data by auth code
+    async getUserData(authCode) {
+        const client = new Client({ secret: FAUNA_SECRET });
+        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
+        
+        const user = await client.query(
+            fql`
+              categories_credits.users_by_authCode(${sanitizedAuthCode}).first()
+            `
+        );
+        
+        return user.data;
+    },
+    
+    // Save failed authentication attempt
+    async saveFailedAttempt(authCode, ipAddress) {
+        const client = new Client({ secret: FAUNA_SECRET });
+        await client.query(
+            fql`
+                failedAttempts.create({
+                authCode: ${authCode},
+                ipAddress: ${ipAddress},
+                timestamp: ${Date.now()}
+                })
+            `
+        );
+    },
+    
+    // Read failed authentication attempts for an IP address
+    async readFailedAttempts(ipAddress, timeWindowMs) {
+        const client = new Client({ secret: FAUNA_SECRET });
+        const failedAttempts = await client.query(
+            fql`
+                failedAttempts
+                .where(.ipAddress == ${ipAddress} && .timestamp > ${Date.now() - timeWindowMs})
+                .count()
+            `
+        );
+        return failedAttempts;
+    },
+    
+    // Update client credits
+    async updateClientCredits(authCode, newCreditAmount) {
+        const client = new Client({ secret: FAUNA_SECRET });
+        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
+        await client.query(
+            fql`
+                categories_credits.firstWhere(.key == ${sanitizedAuthCode})?.update({credits: ${newCreditAmount}})
+            `
+        );
+    },
+    
+    // Create a document in the database
+    async createDocument(collectionName, documentData) {
+        const client = new Client({ secret: FAUNA_SECRET });
+        await client.query(
+            fql`
+                ${collectionName}.create(${documentData})
+            `
+        );
+    }
+};
+
+// Supabase database service
+const dbServiceNew = {
+    // Initialize Supabase client
+    getClient() {
+        if (!SUPABASE_URL || !SUPABASE_KEY) {
+            throw new Error("Supabase credentials not set");
+        }
+        return createClient(SUPABASE_URL, SUPABASE_KEY);
+    },
+    
+    // Get user data by auth code
+    async getUserData(authCode) {
+        const supabase = this.getClient();
+        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
+        
+        const { data, error } = await supabase
+            .from('credits')
+            .select('*')
+            .eq('key', sanitizedAuthCode)  // TODO encrypt keys
+            .single();
+            
+        if (error) {
+            console.error("Error fetching user data:", error);
+            return null;
+        }
+        
+        return data;
+    },
+    
+    // Save failed authentication attempt
+    async saveFailedAttempt(authCode, ipAddress) {
+        const supabase = this.getClient();
+        const { error } = await supabase
+            .from('failedAttempts')
+            .insert({
+                authCode: authCode,
+                ipAddress: ipAddress,
+            });
+            
+        if (error) {
+            console.error("Error saving failed attempt:", error);
+        }
+    },
+    
+    // Read failed authentication attempts for an IP address
+    async readFailedAttempts(ipAddress, timeWindowMs) {
+        const supabase = this.getClient();
+        const timeThreshold = new Date(Date.now() - timeWindowMs).toISOString();
+        
+        const { count, error } = await supabase
+            .from('failedAttempts')
+            .select('*', { count: 'exact', head: true })
+            .eq('ipAddress', ipAddress)
+            .gte('created_at', timeThreshold);
+            
+        if (error) {
+            console.error("Error reading failed attempts:", error);
+            return 0;
+        }
+        
+        return count;
+    },
+    
+    // Update client credits
+    async updateClientCredits(authCode, newCreditAmount) {
+        const supabase = this.getClient();
+        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
+        
+        const { error } = await supabase
+            .from('credits')
+            .update({ credits: newCreditAmount })
+            .eq('key', sanitizedAuthCode);  // TODO encrypt keys
+            
+        if (error) {
+            console.error("Error updating client credits:", error);
+        }
+    },
+    
+    // Create a document in the database
+    async createDocument(collectionName, documentData) {
+        const supabase = this.getClient();
+        
+        // For Supabase, store the entire JSON in a 'document' column
+        const { error } = await supabase
+            .from(collectionName)
+            .insert({
+                document: documentData
+            });
+            
+        if (error) {
+            console.error(`Error creating document in ${collectionName}:`, error);
+        }
+    }
+};
 
 exports.handler = async (event) => {
     if (event.httpMethod !== "POST") {
@@ -39,56 +202,36 @@ exports.handler = async (event) => {
             return { statusCode: 500, body: JSON.stringify({ error: "Auth code not set." }) };
         }
 
+        // Check for too many failed attempts from this IP before proceeding
+        const userIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
+        const failedAttempts = await dbServiceNew.readFailedAttempts(userIp, 15 * 60 * 1000); // Last 15 minutes
+        
+        if (failedAttempts >= 5) {
+            return { 
+                statusCode: 429, 
+                body: JSON.stringify({ 
+                    error: "Too many incorrect requests. Please try again later." 
+                }) 
+            };
+        }
+
         // Verify authCode and credits
-        const client = new Client({ secret: FAUNA_SECRET });
-        const sanitizedAuthCode = authCode.replace(/[^a-zA-Z0-9]/g, "");
+        const user = await dbServiceNew.getUserData(authCode);
 
-        const user = await client.query(
-            fql`
-              categories_credits.users_by_authCode(${sanitizedAuthCode}).first()
-            `
-        );
-
-
-        if (!user.data) {
+        if (!user) {
             // Log failed attempt with authCode
-            const userIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
-
-            await client.query(
-                fql`
-                    failedAttempts.create({
-                    authCode: ${authCode},
-                    ipAddress: ${userIp},
-                    timestamp: ${Date.now()}
-                    })
-                `
-            );
-
-            // Check if there are too many failed attempts for this IP address
-            const failedAttempts = await client.query(
-                fql`
-                    failedAttempts
-                    .where(.ipAddress == ${userIp} && .timestamp > ${Date.now() - 15 * 60 * 1000}) // Last 15 minutes
-                    .count()
-                `
-            );
+            await dbServiceNew.saveFailedAttempt(authCode, userIp);
 
             return { statusCode: 401, body: JSON.stringify({ error: `Unauthorized. Please check your auth code.` }) };
         }
 
-        if (user.data.credits <= 0) {
+        if (user.credits <= 0) {
             return { statusCode: 402, body: JSON.stringify({ error: "Insufficient credits" }) };
         }
 
-        const creditsLeft = user.data.credits - 1;
+        const creditsLeft = user.credits - 1;
 
-        await client.query(
-            fql`
-                categories_credits.firstWhere(.key == ${sanitizedAuthCode})?.update({credits: ${creditsLeft}})
-            `
-        );
-
-
+        await dbServiceNew.updateClientCredits(authCode, creditsLeft);
 
         // Generate content with LLM
         const genAI = new GoogleGenerativeAI(API_KEY);
@@ -125,11 +268,7 @@ exports.handler = async (event) => {
         let jsonResponse = JSON.parse(cleanedResponse);
         jsonResponse.credits_left = creditsLeft;
 
-        await client.query(
-            fql`
-                requests.create(${jsonResponse})
-            `
-        );
+        await dbServiceNew.createDocument('requests', { document: jsonResponse });
 
         return {
             statusCode: 200,
