@@ -15,8 +15,8 @@ This API can process multiple documents at once and adapt to your organization�
 
 ✨ **Fun fact:** The whole application was created without manually writing code—only using commands provided to ChatGPT/Perplexity and some minor code fixes.
 
-**Integrated systems:** Netlify, Fauna DB, Gemini-2.0-flash
+**Integrated systems:** Netlify, Supabase DB, Gemini-2.0-flash
 
-⏱️ **Time spent:** 4 hours *(70% of the time resolving issues with authorization and Fauna DB due to incorrect code from LLM)*
+⏱️ **Time spent:** 4 hours *(70% of the time resolving issues with authorization and Supabase DB due to incorrect code from LLM)*
 
-📧 **Contact:** `piotr [at] orpi.pl`
+📧 **Contact:** `support [at] marketscanai.com`
