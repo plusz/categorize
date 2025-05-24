@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Last Usage Status</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        #status { margin-top: 1em; padding: 1em; border: 1px solid #ccc; border-radius: 5px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Last Usage Status</h1>
+    <div id="status">Loading...</div>
+    <script>
+        fetch('/.netlify/functions/lastUsage')
+            .then(response => response.json())
+            .then(data => {
+                const statusDiv = document.getElementById('status');
+                if (data.lastUsage) {
+                    statusDiv.textContent = JSON.stringify(data.lastUsage, null, 2);
+                } else if (data.error) {
+                    statusDiv.innerHTML = `<span class="error">Error: ${data.error}</span>`;
+                } else {
+                    statusDiv.textContent = 'Unknown response format.';
+                }
+            })
+            .catch(err => {
+                document.getElementById('status').innerHTML = `<span class="error">Request failed: ${err}</span>`;
+            });
+    </script>
+</body>
+</html>

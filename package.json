@@ -19,7 +19,7 @@
   "homepage": "https://github.com/plusz/categorize#readme",
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
-    "@supabase/supabase-js": "^2.49.4",    
+    "@supabase/supabase-js": "^2.49.4",
     "nodemailer": "^6.9.12"
   }
 }
