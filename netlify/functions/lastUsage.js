@@ -18,7 +18,7 @@ exports.handler = async (event) => {
         const { data: insertData, error: insertError } = await supabase
             .from('requests')
             .insert([
-                { document_title: "ping", "app_id": "ping" }
+                { document_title: "ping", app_id: "ping" }
             ]);
             
         if (insertError) {
