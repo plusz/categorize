@@ -11,12 +11,33 @@ function getClient() {
 }
 
 exports.handler = async (event) => {
+    const supabase = getClient();
+    
+    // Insert a record with document_title="ping" regardless of HTTP method
+    try {
+        const { data: insertData, error: insertError } = await supabase
+            .from('requests')
+            .insert([
+                { document_title: "ping", "app_id": "ping" }
+            ]);
+            
+        if (insertError) {
+            console.error("Error inserting ping record:", insertError);
+            // Continue with the function even if insert fails
+        } else {
+            console.log("Successfully inserted ping record");
+        }
+    } catch (insertException) {
+        console.error("Exception during ping record insertion:", insertException);
+        // Continue with the function even if insert fails
+    }
+    
+    // Original GET functionality
     if (event.httpMethod !== "GET") {
         return { statusCode: 405, body: "Method Not Allowed" };
     }
 
     try {
-        const supabase = getClient();
 
         // Get the most recent record from 'requests'
         const { data, error } = await supabase
